@@ -150,4 +150,6 @@ extension Notification.Name {
     /// Posted by the island when a line of a module's list is clicked.
     /// userInfo: ["module": String (module id), "row": String (the row's `action`)]
     static let moduleRowAction = AppIdentity.notification("moduleRowAction")
+    static let moduleRowsSeen = AppIdentity.notification("moduleRowsSeen")
+    static let moduleLeft = AppIdentity.notification("moduleLeft")
 }

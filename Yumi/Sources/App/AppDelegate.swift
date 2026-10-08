@@ -17,6 +17,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // The keys of the integrations inherited from Coucou go, once (they are no longer in Yumi).
         KeychainStore.shared.eraseRetiredKeys()
         NSApp.setActivationPolicy(.accessory)
+        MoveToApplications.offerIfNeeded()
         setupMenuBarItem()
         setupIsland()
     }

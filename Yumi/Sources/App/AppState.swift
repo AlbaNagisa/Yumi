@@ -87,6 +87,9 @@ final class AppState: ObservableObject {
     @Published var autoCloseInterval: TimeInterval = 15 {
         didSet { UserDefaults.standard.set(autoCloseInterval, forKey: "autoCloseInterval") }
     }
+    @Published var hideInterval: TimeInterval = 60 {
+        didSet { UserDefaults.standard.set(hideInterval, forKey: "hideInterval") }
+    }
 
     // Absence interval — persisted
     var absenceInterval: TimeInterval = 3 * 60 {
@@ -154,10 +157,8 @@ final class AppState: ObservableObject {
 
         if let v = ud.object(forKey: "soundEnabled") as? Bool   { soundEnabled = v }
         if let v = ud.object(forKey: "soundVolume")  as? Double { soundVolume  = v }
-        // Migrate old 60s default → 15s
-        if let v = ud.object(forKey: "autoCloseInterval") as? Double {
-            autoCloseInterval = (v == 60) ? 15 : v
-        }
+        if let v = ud.object(forKey: "autoCloseInterval") as? Double { autoCloseInterval = v }
+        if let v = ud.object(forKey: "hideInterval") as? Double { hideInterval = v }
         if let v = ud.object(forKey: "absenceInterval")   as? Double { absenceInterval   = v }
         if let v = ud.object(forKey: "greetThreshold")    as? Double { greetThresholdSeconds = v }
         if let v = ud.object(forKey: "hotkeyEnabled") as? Bool  { hotkeyEnabled = v }

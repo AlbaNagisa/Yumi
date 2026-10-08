@@ -4067,6 +4067,206 @@
         }
       }
     },
+    "Retour à la liste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the list"
+          }
+        }
+      }
+    },
+    "Souris partie, je me replie après": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pointer gone, I fold away after"
+          }
+        }
+      }
+    },
+    "Puis je rentre dans l'encoche après": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Then I tuck into the notch after"
+          }
+        }
+      }
+    },
+    "Les délais partent du moment où la souris quitte l'île.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delays start when the pointer leaves the island."
+          }
+        }
+      }
+    },
+    "Glisse-moi dans Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag me into Applications"
+          }
+        }
+      }
+    },
+    "Je tourne depuis une copie temporaire que macOS a faite de moi. Glisse Yumi.app dans Applications, puis relance-moi.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I am running from a temporary copy macOS made of me. Drag Yumi.app into Applications, then open me again."
+          }
+        }
+      }
+    },
+    "Je ne suis pas dans Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I am not in Applications"
+          }
+        }
+      }
+    },
+    "Je tourne depuis %@. Rangé dans Applications, je serai plus simple à retrouver et à mettre à jour.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I am running from %@. In Applications, I will be easier to find and to update."
+          }
+        }
+      }
+    },
+    "Me ranger dans Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move me to Applications"
+          }
+        }
+      }
+    },
+    "Pas maintenant": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        }
+      }
+    },
+    "Ne plus me le demander": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't ask me again"
+          }
+        }
+      }
+    },
+    "Je n'ai pas pu me déplacer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I could not move"
+          }
+        }
+      }
+    },
+    "Une version plus ancienne est dans Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An older version is in Applications"
+          }
+        }
+      }
+    },
+    "Cette copie (%@) tourne depuis %@. Je peux remplacer la version %@ d'Applications et repartir de là.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This copy (%@) is running from %@. I can replace version %@ in Applications and start again from there."
+          }
+        }
+      }
+    },
+    "Remplacer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace"
+          }
+        }
+      }
+    },
+    "Une autre copie est dans Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another copy is in Applications"
+          }
+        }
+      }
+    },
+    "Cette copie tourne depuis %@. Celle d'Applications est la version %@. Je peux ouvrir celle-là et mettre celle-ci à la corbeille.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This copy is running from %@. The one in Applications is version %@. I can open that one and put this one in the Trash."
+          }
+        }
+      }
+    },
+    "Ouvrir celle d'Applications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the one in Applications"
+          }
+        }
+      }
+    },
+    "Continuer ici": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep going here"
+          }
+        }
+      }
+    },
+    "Rentrer dans l'encoche après": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back into the notch after"
+          }
+        }
+      }
+    },
     "Je modifie": {
       "localizations": {
         "en": {

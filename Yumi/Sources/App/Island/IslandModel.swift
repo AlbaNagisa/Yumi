@@ -90,6 +90,16 @@ final class IslandModel: ObservableObject {
     // MARK: Open island
 
     @Published var selectedModuleID: String?
+    @Published var openSessionID: String?
+    @Published var restingView: IslandView = .overview {
+        didSet { UserDefaults.standard.set(restingView.rawValue, forKey: Self.restingViewKey) }
+    }
+    var restingModuleID: String? {
+        didSet { UserDefaults.standard.set(restingModuleID, forKey: Self.restingModuleKey) }
+    }
+    private static let restingViewKey = "islandRestingView"
+    private static let restingModuleKey = "islandRestingModule"
+    private static let tabs: Set<IslandView> = [.overview, .module, .prompt, .settings]
     /// Height the open island needs for what it shows: it is as low as the content allows.
     @Published var openHeight: CGFloat = IslandConst.openHeightDefault
 
@@ -114,7 +124,11 @@ final class IslandModel: ObservableObject {
     private(set) var actorReady = false
     private var whenReady: [() -> Void] = []
 
-    private init() {}
+    private init() {
+        let ud = UserDefaults.standard
+        restingView = ud.string(forKey: Self.restingViewKey).flatMap(IslandView.init(rawValue:)) ?? .overview
+        restingModuleID = ud.string(forKey: Self.restingModuleKey)
+    }
 
     // MARK: - Shape
 
@@ -147,6 +161,28 @@ final class IslandModel: ObservableObject {
 
     func selectedModule(in modules: [ModuleSnapshot]) -> ModuleSnapshot? {
         modules.first { $0.id == selectedModuleID } ?? modules.first
+    }
+
+    func rememberTab(_ view: IslandView, module: String? = nil) {
+        guard Self.tabs.contains(view) else { return }
+        restingView = view
+        if view == .module { restingModuleID = module }
+    }
+
+    func landingView(requested: IslandView?, modules: [ModuleSnapshot]) -> IslandView {
+        let fallback = requested ?? .overview
+        guard fallback == .overview || fallback == .empty, !IslandStudio.isOn else { return fallback }
+        switch restingView {
+        case .module:
+            guard let id = restingModuleID,
+                  modules.prefix(ModuleCatalog.selectionLimit).contains(where: { $0.id == id }) else { return fallback }
+            selectedModuleID = id
+            return .module
+        case .prompt, .settings:
+            return restingView
+        default:
+            return fallback
+        }
     }
 
     /// The one thing the home view shows: what needs the user now, else the next thing to know.
@@ -325,7 +361,8 @@ final class IslandModel: ObservableObject {
             || (open && new.screen == .module && Self.isMusic(new.moduleID))
         // An agent at work: the cigarette, the coffee or the matcha chosen in the settings.
         // Shown wherever the island is not about something else.
-        let atWork = new.busy && (!open || new.screen == .home || new.screen == .working)
+        let atWork = new.busy && (!open || new.screen == .home || new.screen == .working
+            || (new.screen == .module && new.moduleID == Self.agentModuleID))
         if !atWork { workPick = nil }
         switch new.screen {
         case _ where atWork:

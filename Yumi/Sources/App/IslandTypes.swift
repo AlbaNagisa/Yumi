@@ -220,6 +220,8 @@ enum IslandConst {
     static let launchScale: CGFloat = 1.25
     static let openHeightDefault: CGFloat = 150
     static let openHeightMax: CGFloat = 340
+    static let railHeight: CGFloat = 37
+    static var activityHeightMax: CGFloat { openHeightMax - openPaddingTop - openPaddingBottom - railHeight }
     /// Left column of the open island: Yumi's seat and his caption.
     static let seatColumn: CGFloat = 92
     /// `.act { padding: 18px 22px 8px 0; min-height: 102px }`

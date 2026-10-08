@@ -39,7 +39,23 @@ final class IslandStateMachine {
         }
     }
     /// petit → hidden delay (seconds). Override for debug.
-    var petitToHiddenDelay: TimeInterval = 60
+    var petitToHiddenDelay: TimeInterval = 60 {
+        didSet {
+            guard petitToHiddenDelay != oldValue, petitHideWork != nil else { return }
+            schedulePetitHide()
+        }
+    }
+    var hidesByItself = true {
+        didSet {
+            guard hidesByItself != oldValue, state == .petit else { return }
+            if !hidesByItself {
+                petitHideWork?.cancel()
+                petitHideWork = nil
+            } else if !hovered {
+                schedulePetitHide()
+            }
+        }
+    }
     /// greeting → petit if `greetComplete()` never comes. The launch lasts about 5 s.
     var greetingTimeout: TimeInterval = 8
 
@@ -159,6 +175,8 @@ final class IslandStateMachine {
 
     private func schedulePetitHide() {
         petitHideWork?.cancel()
+        petitHideWork = nil
+        guard hidesByItself else { return }
         let item = DispatchWorkItem { [weak self] in
             guard let self, self.state == .petit else { return }
             self.transition(to: .hidden)
@@ -546,7 +564,7 @@ enum SettingsPage: String, CaseIterable, Identifiable, Sendable {
     /// window was redone, so nothing set earlier is lost.
     static let settings: [SettingsPage: [String]] = [
         .general:     ["yumiLanguage", "tripleShiftEnabled", "launchAtStartup", "hotkeyEnabled", "hotkeyFlags", "hotkeyCode", "autoCloseInterval",
-                       "absenceInterval", "contextEngineEnabled"],
+                       "hideInterval", "absenceInterval", "contextEngineEnabled"],
         .yumi:        ["soundEnabled", "soundVolume", "workHabit", "yumiTalk"],
         .modules:     ["github-token"],
         .engines:     ["engineSettings", "engineKeys"],

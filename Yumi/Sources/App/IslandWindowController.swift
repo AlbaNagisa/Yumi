@@ -149,7 +149,7 @@ final class IslandWindowController: NSWindowController {
 
             case .home:
                 if from == .greeting { self.launch.cancel() }
-                self.state.view = self.pendingView ?? .overview
+                self.state.view = self.model.landingView(requested: self.pendingView, modules: self.state.modules)
                 self.pendingView = nil
                 self.setMode(.expanded, sound: from != .greeting)
 
@@ -165,10 +165,12 @@ final class IslandWindowController: NSWindowController {
 
     /// What is left behind when the island folds: the view, the key window, a chat error.
     private func leaveOpenIsland() {
+        IslandActions.leaveModule()
         IslandActions.leaveChatError(next: nil)
         state.isPinned = false
         fsm.pinned = false
         if state.view != .overview { state.view = .overview }
+        model.openSessionID = nil
         window?.resignKey()
     }
 
@@ -197,9 +199,10 @@ final class IslandWindowController: NSWindowController {
             .store(in: &subscriptions)
 
         // What the loop used to copy at every frame
-        state.$autoCloseInterval
+        state.$autoCloseInterval.map { _ in () }
+            .merge(with: state.$hideInterval.map { _ in () })
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.syncFoldSetting() }
+            .sink { [weak self] in self?.syncFoldSetting() }
             .store(in: &subscriptions)
         state.$pendingApproval
             .receive(on: DispatchQueue.main)
@@ -227,6 +230,8 @@ final class IslandWindowController: NSWindowController {
     func syncFoldSetting() {
         fsm.foldsByItself = !holdsOpen && state.autoCloseInterval > 0
         if state.autoCloseInterval > 0 { fsm.homeToPetitDelay = max(3, state.autoCloseInterval) }
+        fsm.hidesByItself = holdsOpen || state.hideInterval > 0
+        if !holdsOpen, state.hideInterval > 0 { fsm.petitToHiddenDelay = max(3, state.hideInterval) }
     }
 
     private func pollFrame() {

@@ -53,8 +53,7 @@ struct IslandScene: View {
         let busy = IslandModel.isBusy(state.effectiveState)
         let resolved = IslandScreen.resolve(view: state.view, state: state.effectiveState, approvalPending: approval)
         // The agent's module shows the agent at work while it works
-        let screen: IslandScreen = resolved == .module && busy
-            && model.selectedModule(in: state.modules)?.id == IslandModel.agentModuleID ? .working : resolved
+        let screen = resolved
         let drop = layout.notchDelta / IslandConst.launchScale
         let situation = IslandModel.Situation(
             stage: stage,

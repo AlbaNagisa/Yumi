@@ -8,9 +8,15 @@ struct ModuleRowsList: View {
     let module: ModuleSnapshot
     /// Sessions say since when; events and pull requests say when.
     var elapsed = false
+    var available: CGFloat? = nil
+    var onSelect: (@MainActor (ModuleRow) -> Void)? = nil
 
     /// Five lines are seen at once; the others scroll.
-    private var limit: CGFloat { 5 * ModuleRowLine.height + 40 + (open.isEmpty ? 0 : 110) }
+    private var limit: CGFloat {
+        let rows = 5 * ModuleRowLine.height + 40 + (open.isEmpty ? 0 : 110)
+        guard let available else { return rows }
+        return max(2 * ModuleRowLine.height + 20, min(rows, available))
+    }
     @Environment(\.islandLayerShown) private var shown
     /// The lines unfolded to show their details.
     @State private var open: Set<String> = {
@@ -39,7 +45,9 @@ struct ModuleRowsList: View {
                         }
                         ModuleRowLine(row: row, time: time(row, now: shown ? context.date : .now), unfolded: open.contains(row.id),
                                       tick: row.check.map { check in { IslandActions.row(module.id, check) } }) {
-                            if !row.details.isEmpty {
+                            if let onSelect {
+                                onSelect(row)
+                            } else if !row.details.isEmpty {
                                 withAnimation(.islandSpring(0.35)) {
                                     if open.contains(row.id) { open.remove(row.id) } else { open.insert(row.id) }
                                 }
@@ -68,6 +76,18 @@ struct ModuleRowsList: View {
     }
 }
 
+extension ModuleRowState {
+    var islandColor: Color {
+        switch self {
+        case .neutral: return IslandTheme.faint
+        case .busy:    return IslandTheme.blue
+        case .waiting: return IslandTheme.amber
+        case .success: return IslandTheme.green
+        case .failure: return IslandTheme.red
+        }
+    }
+}
+
 /// One line: dot, title, detail, state, time.
 private struct ModuleRowLine: View {
     static let height: CGFloat = 24
@@ -79,15 +99,7 @@ private struct ModuleRowLine: View {
     let action: () -> Void
     @State private var hover = false
 
-    private var color: Color {
-        switch row.state {
-        case .neutral: return IslandTheme.faint
-        case .busy:    return IslandTheme.blue
-        case .waiting: return IslandTheme.amber
-        case .success: return IslandTheme.green
-        case .failure: return IslandTheme.red
-        }
-    }
+    private var color: Color { row.state.islandColor }
 
     var body: some View {
         HStack(spacing: 0) {

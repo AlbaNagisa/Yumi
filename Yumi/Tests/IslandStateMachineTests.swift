@@ -107,6 +107,32 @@ import Foundation
         #expect(fsm.state == .petit)
     }
 
+    @Test func compactIslandStaysWhenAskedNeverToHide() async {
+        let (fsm, _) = makeFSM(petitToHidden: Self.short)
+        fsm.hidesByItself = false
+        fsm.mouseEntered()
+        fsm.mouseLeft()
+        try? await Task.sleep(for: Self.settle)
+        #expect(fsm.state == .petit)
+    }
+
+    @Test func hidingAgainStartsTheCountdown() async {
+        let (fsm, _) = makeFSM(petitToHidden: Self.short)
+        fsm.hidesByItself = false
+        fsm.mouseEntered()
+        fsm.mouseLeft()
+        fsm.hidesByItself = true
+        #expect(await reaches(.hidden, fsm))
+    }
+
+    @Test func aShorterHideDelayRestartsTheCountdown() async {
+        let (fsm, _) = makeFSM(petitToHidden: Self.never)
+        fsm.mouseEntered()
+        fsm.mouseLeft()
+        fsm.petitToHiddenDelay = Self.short
+        #expect(await reaches(.hidden, fsm))
+    }
+
     @Test func comingBackCancelsTheHide() async {
         let (fsm, _) = makeFSM(petitToHidden: Self.short)
         fsm.mouseEntered()

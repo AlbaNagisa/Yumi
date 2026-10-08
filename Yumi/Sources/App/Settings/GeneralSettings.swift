@@ -37,8 +37,11 @@ struct GeneralSettings: View {
                 if let startupError { SettingsHelp(startupError) }
             }
 
-            Section("Île") {
+            Section {
                 Picker("Se replier après", selection: Binding(get: { foldDelay }, set: { state.autoCloseInterval = $0 })) {
+                    ForEach(Self.foldDelays, id: \.seconds) { Text($0.label).tag($0.seconds) }
+                }
+                Picker("Rentrer dans l'encoche après", selection: Binding(get: { hideDelay }, set: { state.hideInterval = $0 })) {
                     ForEach(Self.foldDelays, id: \.seconds) { Text($0.label).tag($0.seconds) }
                 }
                 LabeledContent("Se cacher sans mouvement après") {
@@ -55,6 +58,10 @@ struct GeneralSettings: View {
                             .onChange(of: hotkeyCode) { _, value in state.hotkeyCode = value }
                     }
                 }
+            } header: {
+                Text("Île")
+            } footer: {
+                SettingsHelp(loc("Les délais partent du moment où la souris quitte l'île."))
             }
 
             Section {
@@ -78,6 +85,12 @@ struct GeneralSettings: View {
         let value = state.autoCloseInterval
         if value <= 0 { return 0 }
         return Self.foldDelays.filter { $0.seconds > 0 }.min { abs($0.seconds - value) < abs($1.seconds - value) }?.seconds ?? 15
+    }
+
+    private var hideDelay: TimeInterval {
+        let value = state.hideInterval
+        if value <= 0 { return 0 }
+        return Self.foldDelays.filter { $0.seconds > 0 }.min { abs($0.seconds - value) < abs($1.seconds - value) }?.seconds ?? 60
     }
 
     private var absenceMinutes: Binding<Double> {

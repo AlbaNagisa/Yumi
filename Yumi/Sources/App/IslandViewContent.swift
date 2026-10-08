@@ -65,7 +65,7 @@ struct IslandOpenLayer: View {
 
     /// A new activity plays `rise` again; what changes inside one does not.
     private var activityID: String {
-        screen == .module ? "module-\(module?.id ?? "")" : screen.rawValue
+        screen == .module ? "module-\(module?.id ?? "")-\(model.openSessionID ?? "")" : screen.rawValue
     }
 
     @ViewBuilder private var activity: some View {
@@ -82,7 +82,7 @@ struct IslandOpenLayer: View {
         case .drop:     DropActivity(state: state)
         case .module:
             if let module {
-                ModuleActivity(module: module)
+                ModuleActivity(module: module, model: model)
             } else {
                 OverviewActivity(state: state)
             }

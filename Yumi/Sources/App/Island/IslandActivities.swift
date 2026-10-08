@@ -298,9 +298,13 @@ struct ActRow<Lines: View, Trail: View>: View {
 /// their own; the others follow the common model.
 struct ModuleActivity: View {
     let module: ModuleSnapshot
+    @ObservedObject var model: IslandModel
+    @State private var headHeight: CGFloat = 0
+    @Environment(\.islandLayerShown) private var shown
 
     private func primary() { IslandActions.module(module.id, "primary") }
     private func secondary() { IslandActions.module(module.id, "secondary") }
+    private var listAvailable: CGFloat { IslandConst.activityHeightMax - headHeight - 8 }
 
     var body: some View {
         switch module.id {
@@ -376,30 +380,51 @@ struct ModuleActivity: View {
     /// Claude Code with sessions open: what the first one does, then one line per session,
     /// the ones waiting for something first. A line brings its terminal or editor forward.
     private var sessions: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ActRow {
-                ActMeta(color: module.needsAttention ? IslandTheme.amber : module.color,
-                        text: "\(module.name) · \(module.status)").riseIn(0)
-                ActTitle(text: module.title).riseIn(1)
-            } trail: {
-                RoundButton(style: module.needsAttention ? .fill : .plain, symbol: module.primarySymbol ?? "eye.fill",
-                            label: module.primaryAction, color: IslandTheme.amber, action: primary)
+        Group {
+            if let id = model.openSessionID, let row = module.rows.first(where: { $0.id == id }) {
+                SessionDetailActivity(module: module, row: row)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    ActRow {
+                        ActMeta(color: module.needsAttention ? IslandTheme.amber : module.color,
+                                text: "\(module.name) · \(module.status)").riseIn(0)
+                        ActTitle(text: module.title).riseIn(1)
+                    } trail: {
+                        RoundButton(style: module.needsAttention ? .fill : .plain, symbol: module.primarySymbol ?? "eye.fill",
+                                    label: module.primaryAction, color: IslandTheme.amber, action: primary)
+                    }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headHeight = $0 }
+                    ModuleRowsList(module: module, elapsed: true, available: listAvailable, onSelect: { IslandActions.openSession($0.id) })
+                        .padding(.leading, -7)
+                        .riseIn(2)
+                }
             }
-            ModuleRowsList(module: module, elapsed: true)
-                .padding(.leading, -7)
-                .riseIn(2)
         }
+        .onAppear(perform: markSeen)
+        .onChange(of: module.rows) { _, _ in markSeen() }
+        .onChange(of: shown) { _, now in if now { markSeen() } }
+    }
+
+    private func markSeen() {
+        guard shown else { return }
+        let visible = model.openSessionID.map { id in module.rows.filter { $0.id == id } } ?? module.rows
+        let finished = visible.filter { $0.state == .success }.map(\.id)
+        guard !finished.isEmpty else { return }
+        NotificationCenter.default.post(name: .moduleRowsSeen, object: nil, userInfo: ["module": module.id, "rows": finished])
     }
 
     /// GitHub: the repository, the last event in one sentence, three figures, one button.
     /// A pull request that waits goes first, with a button to review it.
     private var github: some View {
         VStack(alignment: .leading, spacing: 8) {
-            IslandContributions()
-                .riseIn(0)
-            githubHead
+            VStack(alignment: .leading, spacing: 8) {
+                IslandContributions()
+                    .riseIn(0)
+                githubHead
+            }
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { headHeight = $0 }
             if !module.rows.isEmpty {
-                ModuleRowsList(module: module)
+                ModuleRowsList(module: module, available: listAvailable)
                     .padding(.leading, -7)
                     .riseIn(3)
             }
@@ -512,6 +537,49 @@ struct AlertActivity: View {
                 }
             }
         }
+    }
+}
+
+struct SessionDetailActivity: View {
+    let module: ModuleSnapshot
+    let row: ModuleRow
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ActRow {
+                ActMeta(color: row.state.islandColor, text: "Claude Code · \(row.title)").riseIn(0)
+                ActTitle(text: row.detail, lines: 2).riseIn(1)
+                if row.state == .busy { ActShimmer(color: IslandTheme.blue).riseIn(2) }
+                TimelineView(.periodic(from: .now, by: 20)) { context in
+                    ActSub(text: status(now: context.date)).riseIn(3)
+                }
+            } trail: {
+                RoundButton(style: .bare, symbol: "chevron.left", label: loc("Retour à la liste")) { IslandActions.closeSession() }
+                if let action = row.action {
+                    RoundButton(style: row.state == .waiting ? .tint : .plain, symbol: "arrow.up.forward", label: loc("Voir"),
+                                color: row.state == .waiting ? IslandTheme.amber : .white) { IslandActions.row(module.id, action) }
+                }
+            }
+            if !row.details.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(Array(row.details.enumerated()), id: \.offset) { _, line in
+                        Text(line)
+                            .font(IslandTheme.text(11, line.hasPrefix("·") ? .regular : .medium))
+                            .foregroundStyle(line.hasPrefix("·") ? IslandTheme.muted : IslandTheme.fg)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .riseIn(4)
+            }
+        }
+    }
+
+    private func status(now: Date) -> String {
+        var parts = [row.label]
+        if let progress = row.progress { parts.append(progress) }
+        if let date = row.date { parts.append(RowTime.elapsed(since: date, now: now)) }
+        return parts.joined(separator: " · ")
     }
 }
 

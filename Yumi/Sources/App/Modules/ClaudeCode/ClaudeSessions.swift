@@ -263,6 +263,14 @@ struct SessionBoard: Equatable, Sendable {
         seen[SessionID(action)]?.session
     }
 
+    mutating func dismiss(_ ids: Set<SessionID>) {
+        for id in ids {
+            guard let entry = seen[id], Self.finished(entry) else { continue }
+            seen[id] = nil
+            if !entry.closed { departed[id] = entry.phase }
+        }
+    }
+
     private static func finished(_ entry: Seen) -> Bool {
         entry.closed || entry.session.status == .completed
     }

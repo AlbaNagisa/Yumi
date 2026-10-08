@@ -67,6 +67,17 @@ import Foundation
         #expect(board.rows(now: start.addingTimeInterval(140)).map(\.label) == ["travaille"])
     }
 
+    @Test func aFinishedSessionSeenByThePersonLeavesAtOnce() {
+        var board = SessionBoard()
+        let done = session("a", "yumi", recency: 1) { $0.status = .completed; $0.isTurnActive = false }
+        let busy = session("b", "site", recency: 2) { $0.activity = .thinking }
+        board.update([done, busy], now: start)
+        board.dismiss([SessionID("a"), SessionID("b")])
+        #expect(board.rows(now: start.addingTimeInterval(10)).map(\.title) == ["site"])
+        board.update([done, busy], now: start.addingTimeInterval(20))
+        #expect(board.rows(now: start.addingTimeInterval(20)).map(\.title) == ["site"])
+    }
+
     @Test func aClosedSessionIsShownFinishedThenLeaves() {
         var board = SessionBoard()
         board.update([session("a", "yumi", recency: 1) { $0.activity = .thinking }], now: start)

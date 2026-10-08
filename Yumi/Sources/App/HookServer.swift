@@ -322,7 +322,7 @@ final class HookServer: @unchecked Sendable {
         if approval?.isAgent == true {
             // The agent's own events tell the character what comes next (AppDelegate).
             if state.stateOverride == .approval { state.stateOverride = nil }
-            state.view = state.tasks.isEmpty ? .empty : .overview
+            state.view = IslandModel.shared.landingView(requested: state.tasks.isEmpty ? .empty : .overview, modules: state.modules)
             return
         }
         if approval?.isChat == true {
@@ -335,7 +335,7 @@ final class HookServer: @unchecked Sendable {
         if let idx = state.tasks.firstIndex(where: { $0.id == ClaudeTaskMirror.taskID }) {
             state.tasks[idx].pillBadge = nil
         }
-        state.view = state.tasks.isEmpty ? .empty : .overview
+        state.view = IslandModel.shared.landingView(requested: state.tasks.isEmpty ? .empty : .overview, modules: state.modules)
     }
 
     /// True while a permission request is on screen.

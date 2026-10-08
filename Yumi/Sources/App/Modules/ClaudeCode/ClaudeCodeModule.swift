@@ -11,6 +11,8 @@ final class ClaudeCodeModule: YumiModule {
     /// Wakes the module when a finished session leaves the list.
     private var departure: Task<Void, Never>?
     private var rowObserver: NSObjectProtocol?
+    private var seenObservers: [NSObjectProtocol] = []
+    private var seenFinished: Set<SessionID> = []
     private var onChange: (@MainActor () -> Void)?
     /// Shows the sessions in the island (the pending approval if there is one).
     private let onShow: @MainActor () -> Void
@@ -59,6 +61,25 @@ final class ClaudeCodeModule: YumiModule {
             guard note.userInfo?["module"] as? String == "claude-code", let row = note.userInfo?["row"] as? String else { return }
             MainActor.assumeIsolated { self?.open(row) }
         }
+        seenObservers = [
+            NotificationCenter.default.addObserver(forName: .moduleRowsSeen, object: nil, queue: .main) { [weak self] note in
+                guard note.userInfo?["module"] as? String == "claude-code", let rows = note.userInfo?["rows"] as? [String] else { return }
+                MainActor.assumeIsolated { self?.seenFinished.formUnion(rows.map { SessionID($0) }) }
+            },
+            NotificationCenter.default.addObserver(forName: .moduleLeft, object: nil, queue: .main) { [weak self] note in
+                guard note.userInfo?["module"] as? String == "claude-code" else { return }
+                MainActor.assumeIsolated { self?.dismissSeen() }
+            },
+        ]
+    }
+
+    private func dismissSeen() {
+        guard !seenFinished.isEmpty else { return }
+        board.dismiss(seenFinished)
+        seenFinished = []
+        ClaudeSessionJournals.shared.keep(only: Set(board.rows().map(\.id)))
+        scheduleDeparture()
+        onChange?()
     }
 
     func stop() {
@@ -71,6 +92,9 @@ final class ClaudeCodeModule: YumiModule {
         ClaudeSessionJournals.shared.onChange = nil
         if let rowObserver { NotificationCenter.default.removeObserver(rowObserver) }
         rowObserver = nil
+        seenObservers.forEach { NotificationCenter.default.removeObserver($0) }
+        seenObservers = []
+        seenFinished = []
     }
 
     func receive(_ event: YumiEvent, sessions: [SessionID: Session]) {

@@ -181,6 +181,8 @@ targets:
         group: Tests/UnderTest
       - path: Sources/App/AppIdentity.swift
         group: Tests/UnderTest
+      - path: Sources/App/MoveRules.swift
+        group: Tests/UnderTest
       # The tests read the translations too, in French and in English
       - path: Sources/App/Localization/Localizable.xcstrings
         group: Tests/UnderTest

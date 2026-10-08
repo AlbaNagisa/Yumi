@@ -18,7 +18,7 @@ struct SettingsActivity: View {
 
     /// `foldDelay`: seconds, 0 for never.
     private static let delays: [(seconds: TimeInterval, label: String)] =
-        [(5, "5 s"), (15, "15 s"), (30, "30 s"), (60, "1 min"), (0, "Jamais")]
+        [(5, "5 s"), (15, "15 s"), (30, "30 s"), (60, "1 min"), (0, loc("Jamais"))]
 
     var body: some View {
         VStack(spacing: 9) {
@@ -35,7 +35,7 @@ struct SettingsActivity: View {
                 IslandToggle(isOn: $state.soundEnabled, label: loc("Sons"))
             }
             .riseIn(0)
-            row(loc("Je me replie après")) {
+            row(loc("Souris partie, je me replie après")) {
                 HStack(spacing: 0) {
                     ForEach(Self.delays, id: \.seconds) { delay in
                         SegmentButton(label: delay.label, on: selected == delay.seconds) {
@@ -48,6 +48,19 @@ struct SettingsActivity: View {
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
             }
             .riseIn(1)
+            row(loc("Puis je rentre dans l'encoche après")) {
+                HStack(spacing: 0) {
+                    ForEach(Self.delays, id: \.seconds) { delay in
+                        SegmentButton(label: delay.label, on: hideSelected == delay.seconds) {
+                            state.hideInterval = delay.seconds
+                            IslandActions.tap()
+                        }
+                    }
+                }
+                .padding(2)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+            }
+            .riseIn(2)
             row(loc("Quand un agent bosse")) {
                 HStack(spacing: 0) {
                     ForEach(YumiWorkHabit.allCases, id: \.self) { choice in
@@ -60,7 +73,7 @@ struct SettingsActivity: View {
                 .padding(2)
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
             }
-            .riseIn(2)
+            .riseIn(3)
             row("Yumi parle") {
                 HStack(spacing: 0) {
                     ForEach(Self.talks, id: \.value) { choice in
@@ -73,7 +86,7 @@ struct SettingsActivity: View {
                 .padding(2)
                 .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
             }
-            .riseIn(3)
+            .riseIn(4)
             row("GitHub") {
                 if githubConnected {
                     Text("Branché")
@@ -98,11 +111,11 @@ struct SettingsActivity: View {
                     .background(RoundedRectangle(cornerRadius: 16).fill(Color.white.opacity(0.1)))
                 }
             }
-            .riseIn(4)
+            .riseIn(5)
             row(loc("Ce que je sais de toi")) {
                 TextButton(label: state.memory.isEmpty ? loc("Voir") : loc("Voir (\(state.memory.count))")) { IslandActions.go(.memory) }
             }
-            .riseIn(3)
+            .riseIn(6)
             row("Yumi \(YumiUpdates.installed)") {
                 if let newer = updates.newer {
                     TextButton(label: loc("\(newer.tag) est là")) { updates.openRelease() }
@@ -111,11 +124,11 @@ struct SettingsActivity: View {
                     if let url = YumiUpdates.feedbackURL() { NSWorkspace.shared.open(url) }
                 }
             }
-            .riseIn(5)
+            .riseIn(7)
             row(loc("Préviens-moi des nouvelles versions")) {
                 IslandToggle(isOn: Binding(get: { updates.enabled }, set: { updates.enabled = $0 }), label: loc("Nouvelles versions"))
             }
-            .riseIn(6)
+            .riseIn(8)
         }
         .padding(.top, 2)
         .frame(maxWidth: .infinity)
@@ -129,10 +142,12 @@ struct SettingsActivity: View {
     }
 
     /// The choice that matches the stored delay; an older value falls on the nearest one.
-    private var selected: TimeInterval {
-        let value = state.autoCloseInterval
+    private var selected: TimeInterval { Self.choice(for: state.autoCloseInterval, fallback: 15) }
+    private var hideSelected: TimeInterval { Self.choice(for: state.hideInterval, fallback: 60) }
+
+    private static func choice(for value: TimeInterval, fallback: TimeInterval) -> TimeInterval {
         if value <= 0 { return 0 }
-        return Self.delays.filter { $0.seconds > 0 }.min { abs($0.seconds - value) < abs($1.seconds - value) }?.seconds ?? 15
+        return delays.filter { $0.seconds > 0 }.min { abs($0.seconds - value) < abs($1.seconds - value) }?.seconds ?? fallback
     }
 
     /// `.srow`
