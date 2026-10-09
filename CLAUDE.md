@@ -14,6 +14,7 @@ Yumi is a native macOS app: a small animated character living in the MacBook not
 - `Yumi/Tests/`: unit tests (Swift Testing). The bundle is not hosted by the app: a file under test is listed in the `YumiTests` target of `project.yml` and must have no dependency on the rest of the app.
 - `scripts/release.sh`: signed and notarized build. Never run it unless the user asks: with `--publish` it pushes a tag and creates a GitHub release.
 - `.github/workflows/build.yml`: build and tests on every push.
+- `Yumi/Sources/App/MoveToApplications.swift`: at launch, offers to move the app into Applications when it runs from somewhere else, or to open the copy already installed there. The decision is in `MoveRules.swift`, under test.
 - Branch `legacy-v0`: the first Yumi attempt (typed event engine, multi-session store, tests). Reference only.
 
 ## Build and test
@@ -25,7 +26,7 @@ Also build the App Store target: `cd Yumi && xcodebuild -scheme YumiAppStore -co
 
 `YUMI_STUDIO=1` is the filming mode, in every build: nothing real starts and nothing personal is read (see `Core/StudioMode.swift`). Debug builds read two environment variables. `YUMI_SUPPORT_DIR=/some/short/path` moves the socket and the hook script there, so a development build never takes the socket of the installed app (keep the path short: a socket path is limited to 104 bytes). `YUMI_TRACE_MODULES=1` prints the module snapshots each time they change. `YUMI_TRACE_CONTEXT=1` prints each event of the Context Engine as JSON. `YUMI_TRACE_AGENT=1` prints each event of the agent runtime as JSON. `YUMI_CHAT_PROMPT="a||b"` sends chat messages at launch and prints the conversation; `YUMI_CHAT_ANSWERS=allow,deny` scripts the answers to that run's permission requests; `YUMI_TRACE_INITIATIVE=60` prints each remark Yumi makes on his own and, after that many seconds, how often the initiative driver was woken. `YUMI_CHAT_ARGS` appends arguments to the `claude` command (for instance `--setting-sources project,local` to keep your own hooks out of a test). The App Store scheme builds to the same product path as the Debug one: rebuild the `Yumi` scheme before running it.
 
-Build in Debug before every commit. The Debug build has 3 known warnings (two unused values, one main actor call in `SettingsView`), the App Store build 2: do not add any.
+Build in Debug before every commit. The Debug build has 9 known warnings with Xcode 27 (unused values, main actor properties read from Sendable closures, a deprecated API, two trailing closures), the App Store build 8: do not add any. The count moves with the compiler version; compare against `main` built with the same Xcode.
 
 ## Rules
 - Swift 6, SwiftUI + AppKit. No third-party dependencies unless truly unavoidable. The character is drawn in code (`Canvas` + `TimelineView`).
@@ -36,5 +37,6 @@ Build in Debug before every commit. The Debug build has 3 known warnings (two un
 - Never block Claude Code: if the app doesn't answer, the hook exits immediately.
 - Never overwrite `~/.claude/settings.json`: dated backup, merge, show the diff, write only after the user confirms.
 - Never send an email or approve a Claude Code permission without an explicit click.
+- Never move, replace or trash the app bundle without an explicit click: `MoveToApplications` only acts on the button of its own alert.
 - Keep `LICENSE` with the original copyright notice.
 - Contributor rules and the review checklist are in `CONTRIBUTING.md`.

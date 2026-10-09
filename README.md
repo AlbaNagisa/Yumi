@@ -80,7 +80,7 @@ Details: [How the safety model works](#how-the-safety-model-works) and [Privacy]
 
 ## For developers: Claude Code in your notch
 
-Every session, in every terminal and editor, appears in the notch with **what it is working on**: your request, the current task of Claude's todo list and its progress (« 3/7 »), the action in progress (« Edits IslandModel.swift », « Runs swift test »), the last files and commands, and a short summary when a turn ends. Click a session to unfold it, or to open its terminal.
+Every session, in every terminal and editor, appears in the notch with **what it is working on**: your request, the current task of Claude's todo list and its progress (« 3/7 »), the action in progress (« Edits IslandModel.swift », « Runs swift test »), the last files and commands, and a short summary when a turn ends. Click a session for its own page: what it is on, since when, its progress, your request and the last actions; « Voir » brings its terminal or editor forward. The list comes back when the island folds, and a finished session leaves it once you have seen it.
 
 When Claude Code asks for a permission, the island opens and you answer **Allow**, **Always** or **Deny** without leaving what you are doing. If you do not answer, the question goes back to Claude Code as usual.
 
@@ -95,7 +95,7 @@ All of this comes from Claude Code's hooks and, for Claude's last message, from 
 **Requirements:** macOS 15 or later. A Mac with a notch is recommended. An AI engine for the chat and the actions: Claude Code, an Anthropic, OpenAI or Gemini key, or Ollama on your Mac (see [Engines](#engines)). Claude Code is only required to follow your Claude Code sessions.
 
 1. Download `Yumi-<version>.zip` from the [latest release](https://github.com/estebanbaigts/Yumi/releases).
-2. Unzip it and drag **Yumi.app** into **Applications**.
+2. Unzip it and drag **Yumi.app** into **Applications**. Opened from anywhere else, Yumi offers to move himself there.
 3. Open it. The alpha is **not notarized by Apple yet**, so macOS blocks the first launch: open **System Settings › Privacy & Security** and click **Open Anyway**. Only once.
 4. Yumi appears in the notch. Right-click him for the settings.
 
@@ -165,6 +165,8 @@ You choose which modules appear and in which order: drag and drop in **Settings 
 | **Triple Shift** | Opens or folds the island (needs Accessibility outside the island) |
 | **Click outside** | Folds the open island, unless an approval is waiting or the chat has unsent text |
 | **Drag a file or a window onto Yumi** | Ask about it in the chat |
+| **Settings › Île**, or the island's own settings | How long the open island waits after the pointer leaves before folding, and how long the folded island waits before tucking into the notch |
+| **The rail** | The island reopens on the tab you left it on |
 
 ## Engines
 

@@ -37,7 +37,7 @@ cd Yumi && xcodebuild -scheme Yumi -configuration Debug test CODE_SIGNING_ALLOWE
 
 Continuous integration runs the same commands on every push, and also compiles the `YumiAppStore` target. That target is not shipped yet, but its `#if APPSTORE` blocks must keep compiling.
 
-The Debug build has 17 known warnings, all about concurrency and deprecated APIs. Do not add any.
+The Debug build has 9 known warnings with Xcode 27, all about concurrency, unused values and deprecated APIs. Do not add any: build `main` with the same Xcode and compare.
 
 ## Writing tests
 

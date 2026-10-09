@@ -21,6 +21,7 @@ YOU NEED
 INSTALL
 
 1. Drag Yumi.app into your Applications folder.
+   (Opened from somewhere else, Yumi offers to move itself there.)
 
 2. Open it (double-click). macOS says "Yumi cannot be opened":
    click Done, that is expected for an alpha.
